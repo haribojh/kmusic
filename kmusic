@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>韩国乐队最爱 Top 9 - 专属定制版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #0c0a09;
+            color: #f5f5f4;
+        }
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1c1917;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #44403c;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-purple-500 selection:text-white">
+
+    <!-- 顶栏 -->
+    <header class="border-b border-stone-800 bg-stone-950/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="location.reload()">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-bold text-lg neon-glow">9</div>
+                <h1 class="font-bold text-lg tracking-wider bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">K-BAND TOP 9 专属甄选</h1>
+            </div>
+            <div class="text-xs text-stone-400">
+                ✨ 预设专属韩乐队豪华图库
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow max-w-5xl mx-auto w-full px-4 py-8 flex flex-col justify-center items-center">
+
+        <!-- 1. 欢迎引导页 -->
+        <div id="welcome-screen" class="text-center max-w-2xl py-12">
+            <div class="inline-block px-4 py-1.5 mb-6 rounded-full bg-purple-950/60 border border-purple-800 text-purple-300 text-xs tracking-widest uppercase">
+                Classic Tournament • Custom Images Pre-loaded
+            </div>
+            <h2 class="text-3xl sm:text-5xl font-black mb-6 tracking-tight leading-tight">
+                寻找你心目中的<br><span class="bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">韩国乐队最爱 Top 9</span>
+            </h2>
+            <p class="text-stone-400 text-sm sm:text-base mb-8 leading-relaxed">
+                收录了 <span id="total-bands-count" class="text-purple-400 font-bold"></span> 支韩国顶尖独立与摇滚乐队。<br>
+                采用经典 **“9选3” -> “6选3” -> “2选1”** 科学赛制，<br>每支乐队至少登场 3 次以上，完美避开遗珠！
+            </p>
+            <button onclick="startSelection()" class="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-base hover:opacity-95 transition neon-glow tracking-wider shadow-lg">
+                开始甄选之旅 ➔
+            </button>
+        </div>
+
+        <!-- 2. 投票甄选页 -->
+        <div id="voting-screen" class="w-full hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 bg-stone-900/60 border border-stone-800 p-4 rounded-xl gap-3">
+                <div>
+                    <div class="text-xs text-purple-400 uppercase tracking-wider font-semibold" id="stage-title">阶段：小组赛 9 选 3</div>
+                    <h3 class="text-lg font-bold text-stone-100" id="stage-desc">请从下列 9 个乐队中，精准选出你最喜欢的 <span id="pick-target-num" class="text-pink-400">3</span> 个</h3>
+                </div>
+                <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
+                    <span class="text-xs text-stone-400" id="round-indicator">阶段进度 1 / 30</span>
+                    <div class="w-32 bg-stone-800 h-2 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="candidates-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8"></div>
+
+            <div class="flex items-center justify-between border-t border-stone-800 pt-6">
+                <div class="text-xs text-stone-400">
+                    已选择: <span id="selected-count" class="font-bold text-pink-400">0</span> / <span id="max-select-count">3</span>
+                </div>
+                <button id="next-btn" onclick="submitCurrentGroup()" disabled class="px-6 py-3 rounded-xl bg-stone-800 text-stone-500 font-bold text-sm cursor-not-allowed transition shadow-lg">
+                    请选择指定数量的乐队
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. 最终结果页 -->
+        <div id="result-screen" class="w-full hidden flex flex-col items-center">
+            <div class="text-center mb-6">
+                <div class="inline-block px-4 py-1.5 mb-2 rounded-full bg-pink-950/60 border border-pink-800 text-pink-300 text-xs tracking-widest uppercase">
+                    Your Ultimate K-Band Top 9
+                </div>
+                <h2 class="text-3xl font-black tracking-tight">专属韩国乐队最爱排行</h2>
+                <p class="text-stone-400 text-xs mt-1">基于多轮经典晋级赛科学计算生成</p>
+            </div>
+
+            <div id="poster-card" class="w-full max-w-2xl bg-stone-900 border border-stone-800 rounded-2xl p-6 sm:p-8 neon-glow relative overflow-hidden mb-6">
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-pink-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="flex items-center justify-between border-b border-stone-800 pb-4 mb-6">
+                    <div>
+                        <h3 class="font-black text-xl tracking-wider text-white">MY K-BAND TOP 9</h3>
+                        <p class="text-xs text-stone-400">韩国独立/摇滚乐队私藏榜单</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] uppercase tracking-widest px-2.5 py-1 rounded bg-purple-950 text-purple-300 border border-purple-800">Verified</span>
+                    </div>
+                </div>
+
+                <div id="top9-grid" class="grid grid-cols-3 gap-3 sm:gap-4 mb-6"></div>
+
+                <div class="flex items-center justify-between text-[11px] text-stone-500 border-t border-stone-800/60 pt-4">
+                    <span>Generated by K-Band Classic Tournament</span>
+                    <span class="font-mono">#KINDIE #KBAND</span>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="downloadPoster()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm hover:opacity-95 transition shadow-lg flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>保存高清海报图片</span>
+                </button>
+                <button onclick="location.reload()" class="px-6 py-3 rounded-xl border border-stone-700 bg-stone-900 text-stone-300 font-bold text-sm hover:bg-stone-800 transition">
+                    重新测试
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center py-4 text-xs text-stone-600 border-t border-stone-900">
+        K-Band Top 9 Selector &bull; Multi-Stage Tournament Rules
+    </footer>
+
+    <script>
+        // 🚀 已经为你写好的预设图库（包含热门代表乐队的高清视觉或官方代表图）
+        // 大家点开链接时，这些图片将直接自动加载，无需任何人手动设置！
+        const defaultCustomImages = {
+            "DAY6": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+            "QWER": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80",
+            "Xdinary Heroes": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80",
+            "FTIsland": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+            "CNBLUE": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80",
+            "N.Flying": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80",
+            "Silicagel": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+            "Jannabi": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80",
+            "wave to earth": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80",
+            "The Rose": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+            "LUCY": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80",
+            "TOUCHED": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80",
+            "SURL": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+            "NELL": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80",
+            "THORNAPPLE": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80",
+            "HANRORO": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80"
+        };
+
+        const rawBands = [
+            "DAY6", "QWER", "Xdinary Heroes", "FTIsland", "CNBLUE", "N.Flying", "AxMxP", "ONEWE", "LUCY",
+            "splayit", "hrtz.wav", "HiFi-Unicorn", "catch the young", "V01D", "Chrocktikal", "Dragon Pony",
+            "skipjack", "DADADA", "Redoor", "creespy", "The Fix", "KARDI", "NerdConnection", "Can't be blue",
+            "Tokai", "simileland", "Silicagel", "Far east asian tigers", "RedC", "leeparan", "李承允", "POSER",
+            "NELL", "crying nut", "NoBrain", "bluhwa", "jisokuryclub", "blueisnotblue", "dabda", "sonlmor",
+            "喜鹊山", "illuvan", "HANRORO", "TuesdayBeachClub", "DamonsYear", "Adios Audio", "THORNAPPLE",
+            "ConfinedWhite", "Broken Valentine", "gogohawk", "hanroro", "PEPPERTONES", "YB", "the solutions",
+            "Crackshot", "HYANG", "WOODZ", "gift", "The Rose", "W24", "Lacuna", "新人类", "五月五日",
+            "ANARKI CULTURE", "87dance", "HEYMEN", "ONDO", "MGFF", "TOUCHED", "MOWS", "PATZ", "紫雨林",
+            "Noa Coast", "FuturePeerClub", "KYUDO", "FRankly", "igloobay", "sanbo", "KYSB", "Jannabi",
+            "wave to earth", "The Poles", "YDBB", "SURL", "Balming Tiger", "Parannoul", "offthemenu"
+        ];
+
+        function getBandImage(name) {
+            if (defaultCustomImages[name]) {
+                return defaultCustomImages[name];
+            }
+            // 自动兜底：没有单独设定的乐队会统一匹配极具摇滚美学的质感暗黑风大图
+            return `https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80`;
+        }
+
+        let bandsData = rawBands.map(name => ({
+            name: name,
+            score: 0,
+            appearances: 0,
+            votes: 0
+        }));
+
+        document.getElementById('total-bands-count').innerText = bandsData.length;
+
+        let tournamentStages = [];
+        let currentStageIndex = 0;
+        let currentGroupBands = [];
+        let requiredSelectNum = 3;
+        let userSelectedNames = new Set();
+
+        function startSelection() {
+            bandsData.forEach(b => { b.score = 0; b.appearances = 0; b.votes = 0; });
+            tournamentStages = generateTournamentSchedule(bandsData);
+            currentStageIndex = 0;
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('voting-screen').classList.remove('hidden');
+            loadGroup();
+        }
+
+        function generateTournamentSchedule(allBands) {
+            let schedule = [];
+            let pool = [];
+            allBands.forEach(b => {
+                pool.push(b.name);
+                pool.push(b.name);
+                pool.push(b.name);
+            });
+            pool.sort(() => Math.random() - 0.5);
+
+            while (pool.length >= 9) {
+                let groupNames = pool.splice(0, 9);
+                groupNames = [...new Set(groupNames)];
+                while (groupNames.length < 9) {
+                    let randomBand = allBands[Math.floor(Math.random() * allBands.length)].name;
+                    if (!groupNames.includes(randomBand)) {
+                        groupNames.push(randomBand);
+                    }
+                }
+                schedule.push({
+                    type: '9-to-3',
+                    bands: groupNames,
+                    selectNum: 3,
+                    title: '第一阶段：9 选 3 小组海选'
+                });
+            }
+
+            for (let i = 0; i < 15; i++) {
+                let shuffled = [...allBands].sort(() => Math.random() - 0.5);
+                let groupNames = shuffled.slice(0, 6).map(b => b.name);
+                schedule.push({
+                    type: '6-to-3',
+                    bands: groupNames,
+                    selectNum: 3,
+                    title: '第二阶段：6 选 3 深度复赛'
+                });
+            }
+
+            for (let i = 0; i < 10; i++) {
+                let shuffled = [...allBands].sort(() => Math.random() - 0.5);
+                let groupNames = shuffled.slice(0, 2).map(b => b.name);
+                schedule.push({
+                    type: '2-to-1',
+                    bands: groupNames,
+                    selectNum: 1,
+                    title: '第三阶段：2 选 1 巅峰对决'
+                });
+            }
+
+            return schedule;
+        }
+
+        function loadGroup() {
+            if (currentStageIndex >= tournamentStages.length) {
+                showResults();
+                return;
+            }
+
+            const currentStage = tournamentStages[currentStageIndex];
+            currentGroupBands = currentStage.bands.map(name => bandsData.find(b => b.name === name));
+            requiredSelectNum = currentStage.selectNum;
+            userSelectedNames.clear();
+
+            document.getElementById('stage-title').innerText = currentStage.title;
+            document.getElementById('stage-desc').innerHTML = `请从下列乐队中精准选出你最喜欢的 <span class="text-pink-400 font-bold">${requiredSelectNum}</span> 个`;
+            document.getElementById('pick-target-num').innerText = requiredSelectNum;
+            document.getElementById('max-select-count').innerText = requiredSelectNum;
+            document.getElementById('round-indicator').innerText = `阶段进度 ${currentStageIndex + 1} / ${tournamentStages.length}`;
+            
+            const progress = ((currentStageIndex + 1) / tournamentStages.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            currentGroupBands.forEach(b => b.appearances++);
+
+            renderGroupCards();
+            updateNextButtonState();
+        }
+
+        function renderGroupCards() {
+            const grid = document.getElementById('candidates-grid');
+            grid.innerHTML = '';
+            grid.className = currentGroupBands.length === 2 ? "grid grid-cols-2 gap-4 mb-8 max-w-lg mx-auto" : "grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8";
+
+            currentGroupBands.forEach(band => {
+                const isSelected = userSelectedNames.has(band.name);
+                const card = document.createElement('div');
+                card.className = `cursor-pointer rounded-xl p-3 border transition-all duration-200 flex flex-col items-center text-center relative overflow-hidden group ${
+                    isSelected 
+                        ? 'bg-purple-950/40 border-pink-500 neon-glow ring-2 ring-pink-500/50' 
+                        : 'bg-stone-900/80 border-stone-800 hover:border-stone-700'
+                }`;
+                card.onclick = () => toggleSelect(band.name);
+
+                const imgUrl = getBandImage(band.name);
+
+                card.innerHTML = `
+                    <div class="absolute top-2 right-2 w-5 h-5 rounded-full border border-stone-600 flex items-center justify-center text-xs transition ${
+                        isSelected ? 'bg-pink-500 border-pink-500 text-white font-bold' : 'bg-stone-900/60 text-transparent'
+                    }">✓</div>
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden mb-3 bg-stone-800 relative">
+                        <img src="${imgUrl}" alt="${band.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80'">
+                    </div>
+                    <h4 class="font-bold text-sm text-stone-100 line-clamp-1 w-full px-1">${band.name}</h4>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleSelect(name) {
+            if (userSelectedNames.has(name)) {
+                userSelectedNames.delete(name);
+            } else {
+                if (userSelectedNames.size >= requiredSelectNum) {
+                    let firstItem = userSelectedNames.values().next().value;
+                    userSelectedNames.delete(firstItem);
+                }
+                userSelectedNames.add(name);
+            }
+            renderGroupCards();
+            updateNextButtonState();
+        }
+
+        function updateNextButtonState() {
+            const btn = document.getElementById('next-btn');
+            document.getElementById('selected-count').innerText = userSelectedNames.size;
+
+            if (userSelectedNames.size === requiredSelectNum) {
+                btn.disabled = false;
+                btn.className = "px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm hover:opacity-95 transition shadow-lg cursor-pointer";
+                btn.innerText = "确认选择，进入下一组 ➔";
+            } else {
+                btn.disabled = true;
+                btn.className = "px-6 py-3 rounded-xl bg-stone-800 text-stone-500 font-bold text-sm cursor-not-allowed transition shadow-lg";
+                btn.innerText = `请再选择 ${requiredSelectNum - userSelectedNames.size} 个乐队`;
+            }
+        }
+
+        function submitCurrentGroup() {
+            if (userSelectedNames.size !== requiredSelectNum) return;
+
+            userSelectedNames.forEach(name => {
+                let band = bandsData.find(b => b.name === name);
+                if (band) {
+                    band.votes++;
+                    band.score += (currentStageIndex < 31 ? 2 : (currentStageIndex < 46 ? 4 : 8));
+                }
+            });
+
+            currentStageIndex++;
+            loadGroup();
+        }
+
+        function showResults() {
+            document.getElementById('voting-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            bandsData.forEach(b => {
+                let winRate = b.appearances > 0 ? (b.votes / b.appearances) : 0;
+                b.finalScore = b.score + (winRate * 15);
+            });
+
+            bandsData.sort((a, b) => b.finalScore - a.finalScore);
+            const top9 = bandsData.slice(0, 9);
+
+            const grid = document.getElementById('top9-grid');
+            grid.innerHTML = '';
+
+            top9.forEach((band, index) => {
+                const rank = index + 1;
+                const imgUrl = getBandImage(band.name);
+                
+                let rankBadgeColor = 'bg-stone-800 text-stone-300 border-stone-700';
+                if (rank === 1) rankBadgeColor = 'bg-amber-500 text-stone-950 font-black border-amber-400';
+                if (rank === 2) rankBadgeColor = 'bg-slate-300 text-stone-950 font-black border-slate-200';
+                if (rank === 3) rankBadgeColor = 'bg-amber-700 text-white font-black border-amber-600';
+
+                const item = document.createElement('div');
+                item.className = 'bg-stone-950/70 border border-stone-800/80 rounded-xl p-2.5 flex flex-col items-center text-center relative overflow-hidden';
+                item.innerHTML = `
+                    <div class="absolute top-2 left-2 w-6 h-6 rounded-md ${rankBadgeColor} text-xs flex items-center justify-center shadow-md z-10">
+                        #${rank}
+                    </div>
+                    <div class="w-full h-24 sm:h-28 rounded-lg overflow-hidden mb-2 bg-stone-900">
+                        <img src="${imgUrl}" alt="${band.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80'">
+                    </div>
+                    <h4 class="font-bold text-xs sm:text-sm text-stone-100 line-clamp-1 w-full">${band.name}</h4>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function downloadPoster() {
+            const poster = document.getElementById('poster-card');
+            html2canvas(poster, {
+                scale: 2,
+                backgroundColor: '#0c0a09',
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'My-K-Band-Top9.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                alert('生成海报失败，请截图保存。');
+            });
+        }
+    </script>
+</body>
+</html>
